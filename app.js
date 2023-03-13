@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const util = require(__dirname + "/util");
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -15,16 +16,7 @@ const todoItems = [];
 const workItems = [];
 
 app.get("/", (req, res) => {
-  const currentDay = new Date();
-  const options = {
-    weekday: "long",
-    month: "long",
-    year: "numeric",
-    day: "numeric",
-  }
-
-  const dayType = currentDay.toLocaleString("en-US", options);
-
+  const dayType = util.getCurrentDay();
   res.render("todoList", { todoHeading: dayType, todoItems });
 });
 
