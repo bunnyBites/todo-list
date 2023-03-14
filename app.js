@@ -15,6 +15,8 @@ app.use(express.static("public"));
 const todoItems = [];
 const workItems = [];
 
+const port = (process.env.PORT || 3002);
+
 app.get("/", (req, res) => {
   const dayType = util.getCurrentDay();
   res.render("todoList", { todoHeading: dayType, todoItems });
@@ -40,4 +42,4 @@ app.get("/about", (req, res) => {
   res.render("about");
 })
 
-app.listen(3002, () => console.log("Server running on port 3002"));
+app.listen(port, () => console.log("Server running on port " + port));
