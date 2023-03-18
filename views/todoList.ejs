@@ -5,13 +5,12 @@
   </div>
 
   <div class="box">
-    <% for(index = 0; index < todoItems.length; index++) { %>
+    <% todoItems.forEach((todoItem) => { %>
       <div class="item">
         <input type="checkbox">
-        <p><%= todoItems[index] %></p>
+        <p><%= todoItem.name %></p>
       </div>
-    <% } %>
-
+    <% }) %>
     <form class="item" action="/" method="post">
       <input type="text" name="todoTask" placeholder="New Task" autocomplete="off">
       <button type="submit" name="submitTodoBtn" value=<%= todoHeading %>>+</button>
