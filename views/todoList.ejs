@@ -9,11 +9,14 @@
       <div class="item">
         <input type="checkbox">
         <p><%= todoItem.name %></p>
+        <button class="btn">
+          <i class="fa-solid fa-trash"></i>
+        </button>
       </div>
     <% }) %>
     <form class="item" action="/" method="post">
       <input type="text" name="todoTask" placeholder="New Task" autocomplete="off">
-      <button type="submit" name="submitTodoBtn" value=<%= todoHeading %>>+</button>
+      <button type="submit" class="add" name="submitTodoBtn" value=<%= todoHeading %>>+</button>
     </form>
   </div>
 
