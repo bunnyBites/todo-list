@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const _ = require("lodash");
 const mongoose = require("mongoose");
 
 const app = express();
@@ -33,7 +34,12 @@ const customListSchema = new mongoose.Schema({
 
 const CustomList = new mongoose.model("List", customListSchema);
 
-const defaultItems = [new Item({ name: "Eat" }), new Item({ name: "Sleep" }), new Item({ name: "Code" })];
+const defaultItems = [
+  new Item({ name: "Welcome to Todo list" }),
+  new Item({ name: "Add new task by clicking '+'" }),
+  new Item({ name: "Delete task by clicking -->" }),
+  new Item({ name: "Append /<task-name> to create specific task" })
+];
 
 app.get("/", (req, res) => {
   Item.find().then((result) => {
@@ -62,7 +68,6 @@ app.post("/", (req, res) => {
     } else {
       CustomList.findOne({ name: formSubmitHeading })
       .then((result) => {
-        console.log(result);
 
         if (result) {
           result.items.push(newItem);
@@ -76,22 +81,26 @@ app.post("/", (req, res) => {
 
 // handle delete
 app.post("/delete", (req, res) => {
-  const { deletingItem } = req.body;
+  const { deletingItem, listHeading } = req.body;
 
-  Item.deleteOne({ _id: deletingItem })
-  .then(() => res.redirect("/"));
+  if (listHeading === "Today") {
+    Item.deleteOne({ _id: deletingItem })
+    .then(() => res.redirect("/"));
+  } else {
+    CustomList.updateOne({ name: listHeading }, { $pull: { items: { _id: deletingItem }}})
+    .then(() => res.redirect("/" + listHeading));
+  }
 })
 
 app.get("/:itemTitle", (req, res) => {
-  const { itemTitle } = req.params;
+  const preparedItemTitle = _.capitalize(req.params.itemTitle);
 
-  CustomList.findOne({ name: itemTitle })
+  CustomList.findOne({ name: preparedItemTitle })
   .then((result) => {
     if (result?.items?.length) {
-      console.log(result);
-      res.render("todoList", { todoHeading: itemTitle, todoItems: result.items });
+      res.render("todoList", { todoHeading: preparedItemTitle, todoItems: result.items });
     } else {
-      CustomList.create({ name: itemTitle, items: defaultItems })
+      CustomList.create({ name: preparedItemTitle, items: defaultItems })
         .then((result) => {
           res.render("todoList", { todoHeading: result.name, todoItems: [...result.items]});
         })
@@ -99,8 +108,6 @@ app.get("/:itemTitle", (req, res) => {
   })
 })
 
-app.get("/about", (req, res) => {
-  res.render("about");
-});
+app.get("/about", (req, res) => { res.render("about"); });
 
 app.listen(port, () => console.log("Server running on port " + port));

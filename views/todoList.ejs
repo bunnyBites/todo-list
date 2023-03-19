@@ -10,6 +10,7 @@
         <div class="item">
           <input type="checkbox">
           <p><%= todoItem.name %></p>
+          <input type="hidden" name="listHeading" value="<%= todoHeading %>">
           <button name="deletingItem" value=<%= todoItem.id %> class="btn" type="submit">
             <i class="fa-solid fa-trash"></i>
           </button>
