@@ -7,7 +7,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // connect with mongoose
-mongoose.connect("mongodb://127.0.0.1:27017/todoListDB")
+mongoose.connect("mongodb+srv://BunnyBites:BXLWLowi4E8tSd8R@devsandbox.q082xah.mongodb.net/todoListDB")
 .then((value) => {
   if (value) console.log("Connection to Mongo Database is Successful!");
 })
