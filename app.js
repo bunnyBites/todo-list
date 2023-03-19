@@ -6,9 +6,11 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // connect with mongoose
-mongoose.connect("mongodb://127.0.0.1:27017/todoListDB").then((value) => {
+mongoose.connect("mongodb://127.0.0.1:27017/todoListDB")
+.then((value) => {
   if (value) console.log("Connection to Mongo Database is Successful!");
-});
+})
+.catch((err) => console.log(err));
 
 // setting current view engine as ejs
 app.set("view engine", "ejs");
@@ -40,12 +42,20 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  const { todoTask, submitTodoBtn } = req.body;
+  const { todoTask } = req.body;
 
   if (todoTask) Item.create({ name: todoTask });
 
   res.redirect("/");
 });
+
+// handle delete
+app.post("/delete", (req, res) => {
+  const { deletingItem } = req.body;
+
+  Item.findIdAndRemove({ _id: deletingItem })
+  .then((result) => res.redirect("/"));
+})
 
 app.get("/work", (req, res) => {
   res.render("todoList", { todoHeading: "Work Items", todoItems: workItems });
