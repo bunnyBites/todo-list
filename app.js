@@ -25,10 +25,20 @@ const itemSchema = new mongoose.Schema({ name: String });
 // Create a model based on the schema created
 const Item = new mongoose.model("Item", itemSchema);
 
+// Custom List
+const customListSchema = new mongoose.Schema({
+  name: String,
+  items: [itemSchema],
+});
+
+const CustomList = new mongoose.model("List", customListSchema);
+
+const defaultItems = [new Item({ name: "Eat" }), new Item({ name: "Sleep" }), new Item({ name: "Code" })];
+
 app.get("/", (req, res) => {
   Item.find().then((result) => {
     if (!result.length) {
-      Item.create([{ name: "Eat" }, { name: "Sleep" }, { name: "Code" }])
+      Item.create(defaultItems)
         .then(() => {
           console.log("Inserted Default todo list Successfully!");
 
@@ -36,30 +46,58 @@ app.get("/", (req, res) => {
           res.redirect("/");
         });
     } else {
-      res.render("todoList", { todoHeading: "Yo", todoItems: result });
+      res.render("todoList", { todoHeading: "Today", todoItems: result });
     }
   });
 });
 
 app.post("/", (req, res) => {
-  const { todoTask } = req.body;
+  const { todoTask, formSubmitHeading } = req.body;
 
-  if (todoTask) Item.create({ name: todoTask });
+  if (todoTask) {
+    const newItem = new Item({ name: todoTask });
 
-  res.redirect("/");
+    if (formSubmitHeading === "Today") {
+      newItem.save().then(() => res.redirect("/"));
+    } else {
+      CustomList.findOne({ name: formSubmitHeading })
+      .then((result) => {
+        console.log(result);
+
+        if (result) {
+          result.items.push(newItem);
+          result.save();
+          res.redirect("/" + formSubmitHeading);
+        }
+      })
+    }
+  }
 });
 
 // handle delete
 app.post("/delete", (req, res) => {
   const { deletingItem } = req.body;
 
-  Item.findIdAndRemove({ _id: deletingItem })
-  .then((result) => res.redirect("/"));
+  Item.deleteOne({ _id: deletingItem })
+  .then(() => res.redirect("/"));
 })
 
-app.get("/work", (req, res) => {
-  res.render("todoList", { todoHeading: "Work Items", todoItems: workItems });
-});
+app.get("/:itemTitle", (req, res) => {
+  const { itemTitle } = req.params;
+
+  CustomList.findOne({ name: itemTitle })
+  .then((result) => {
+    if (result?.items?.length) {
+      console.log(result);
+      res.render("todoList", { todoHeading: itemTitle, todoItems: result.items });
+    } else {
+      CustomList.create({ name: itemTitle, items: defaultItems })
+        .then((result) => {
+          res.render("todoList", { todoHeading: result.name, todoItems: [...result.items]});
+        })
+    }
+  })
+})
 
 app.get("/about", (req, res) => {
   res.render("about");
