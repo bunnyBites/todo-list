@@ -35,7 +35,6 @@ const customListSchema = new mongoose.Schema({
 const CustomList = new mongoose.model("List", customListSchema);
 
 const defaultItems = [
-  new Item({ name: "Welcome to Todo list" }),
   new Item({ name: "Add new task by clicking '+'" }),
   new Item({ name: "Delete task by clicking -->" }),
   new Item({ name: "Append /<task-name> to create specific task" })
